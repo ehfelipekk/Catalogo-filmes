@@ -14,7 +14,7 @@ import {
   dataLancamentoBR,
   elencoPrincipal,
   lerIdDaUrl,
-} from '../js/util.js';
+} from '../public/js/util.js';
 
 test('urlImagem monta o endereço do CDN ou usa o pôster genérico', () => {
   assert.equal(urlImagem('/abc.jpg', 'w342'), 'https://image.tmdb.org/t/p/w342/abc.jpg');

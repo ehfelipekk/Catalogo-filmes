@@ -52,12 +52,13 @@ A escolha das ferramentas foi delegada pelo autor; a abordagem 1 foi a recomenda
 
 ```
 catalogo-filmes/
-  index.html            lista de filmes em cartaz
-  filme.html            detalhes de um filme (?id=123)
-  css/style.css
-  js/api.js             funções que chamam a função serverless
-  js/lista.js           monta a tela de lista
-  js/filme.js           monta a tela de detalhes
+  public/               só o que é publicado (o site)
+    index.html          lista de filmes em cartaz
+    filme.html          detalhes de um filme (?id=123)
+    css/style.css
+    js/api.js           funções que chamam a função serverless
+    js/lista.js         monta a tela de lista
+    js/filme.js         monta a tela de detalhes
   netlify/functions/tmdb.js   proxy para o TMDB, com a chave
   netlify.toml
   .env                  TMDB_TOKEN=... (NÃO vai pro git)

@@ -1,0 +1,155 @@
+/* Visual do site: tema escuro, comum em sites de cinema. */
+
+:root {
+  --fundo: #121418;
+  --superficie: #1d2027;
+  --texto: #eceef2;
+  --texto-suave: #9aa0ad;
+  --destaque: #f5c518;
+  --raio: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+/* ---------- Cabeçalho e rodapé ---------- */
+
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--superficie);
+  border-bottom: 1px solid #2c303a;
+}
+
+.marca {
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+.rodape {
+  margin-top: auto;
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+  border-top: 1px solid #2c303a;
+}
+
+.logo-tmdb {
+  width: 140px;
+}
+
+/* ---------- Conteúdo ---------- */
+
+.conteudo {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin: 8px 0 20px;
+}
+
+.estado {
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+.erro {
+  padding: 24px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  text-align: center;
+  color: var(--texto);
+}
+
+.botao {
+  display: block;
+  margin: 24px auto;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--destaque);
+  color: #111;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ---------- Grade de filmes ----------
+   "auto-fill" + "minmax" faz a grade se ajustar sozinha à largura da tela:
+   2 colunas no celular, até 5 ou 6 no computador. */
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 400px) {
+  .grade {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+
+.cartao:hover,
+.cartao:focus-visible {
+  transform: translateY(-4px);
+}
+
+.poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: #2a2d34;
+}
+
+.cartao-titulo {
+  font-size: 0.95rem;
+  margin: 8px 10px 2px;
+}
+
+.nota {
+  margin: 0 10px 10px;
+  color: var(--destaque);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
