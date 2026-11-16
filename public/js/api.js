@@ -6,7 +6,13 @@ const ENDERECO = '/.netlify/functions/tmdb';
 
 // Faz o pedido ao servidor e devolve os dados, ou lança um erro com mensagem amigável.
 async function pedir(parametros) {
-  const resposta = await fetch(`${ENDERECO}?${new URLSearchParams(parametros)}`);
+  let resposta;
+  try {
+    resposta = await fetch(`${ENDERECO}?${new URLSearchParams(parametros)}`);
+  } catch {
+    // O navegador não conseguiu nem falar com o servidor (ex.: sem internet).
+    throw new Error('Sem conexão. Verifique sua internet e tente de novo.');
+  }
   const dados = await resposta.json().catch(() => ({}));
   if (!resposta.ok) {
     throw new Error(dados.erro ?? 'Não foi possível carregar os filmes.');
