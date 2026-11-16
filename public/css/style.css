@@ -153,3 +153,98 @@ h1 {
   font-size: 0.85rem;
   font-weight: 600;
 }
+
+/* ---------- Tela de detalhes ---------- */
+
+.filme.com-fundo {
+  /* Imagem de fundo do filme, escurecida para o texto ficar legível. */
+  background:
+    linear-gradient(rgba(18, 20, 24, 0.82), var(--fundo) 520px),
+    var(--fundo-filme) center top / cover no-repeat;
+  border-radius: var(--raio);
+  padding: 16px;
+}
+
+.filme-topo {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.filme-poster {
+  width: 260px;
+  max-width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--raio);
+  background: #2a2d34;
+}
+
+.filme-texto {
+  flex: 1 1 300px;
+}
+
+.filme-texto h1 {
+  margin: 0 0 4px;
+}
+
+.titulo-original {
+  margin: 0 0 8px;
+  color: var(--texto-suave);
+  font-style: italic;
+}
+
+.nota-grande {
+  display: block;
+  font-size: 1.2rem;
+  margin: 8px 0;
+}
+
+.infos {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.infos li {
+  margin: 4px 0;
+}
+
+.sinopse {
+  max-width: 70ch;
+}
+
+.elenco {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.elenco li {
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  padding: 10px 12px;
+}
+
+.elenco span {
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+.trailer {
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--raio);
+}
+
+.voltar {
+  display: inline-block;
+  margin-top: 24px;
+  color: var(--destaque);
+}
