@@ -226,6 +226,84 @@ h2 {
   cursor: wait;
 }
 
+/* ---------- Pesquisa e filtros ----------
+   Um bloco de vidro, como o painel lateral. Em tela estreita,
+   os itens descem para a linha de baixo em vez de sair da tela. */
+
+.busca {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 16px;
+  background: var(--vidro);
+  border: 1px solid var(--borda-vidro);
+  border-radius: 22px;
+}
+
+.busca-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+/* O campo ocupa todo o espaço que sobra ao lado do botão "Buscar". */
+.busca-campo {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 11px 18px;
+  border: 1px solid var(--borda-vidro);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--texto);
+  font: inherit;
+}
+
+.busca-campo::placeholder {
+  color: var(--texto-suave);
+}
+
+.filtro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--texto-suave);
+}
+
+.filtro select {
+  padding: 8px 12px;
+  border: 1px solid var(--borda-vidro);
+  border-radius: 999px;
+  background: var(--fundo);
+  color: var(--texto);
+  font: inherit;
+}
+
+/* Seletor apagado enquanto há texto na pesquisa (a pesquisa e os filtros não se combinam). */
+.filtro select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Botão menor, que fica na mesma linha dos campos (sem a margem do "Carregar mais"). */
+.botao-pequeno {
+  display: inline-block;
+  margin: 0;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
+/* "Limpar": botão de vidro, mais discreto que o "Buscar". */
+.botao-vidro {
+  background: transparent;
+  border: 1px solid var(--borda-vidro);
+  color: var(--texto);
+}
+
+.botao-vidro:hover {
+  background: var(--vidro);
+}
+
 /* ---------- Fileiras que rolam para o lado ----------
    A fileira "estica" até as bordas da tela (margem negativa),
    assim os cartões passam por baixo do painel de vidro ao rolar. */

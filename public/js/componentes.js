@@ -18,6 +18,7 @@ const ICONES = {
   destaque: '<rect x="3" y="6" width="18" height="12" rx="2"/>',
   ranking: '<path d="m12 4 2.4 5 5.6.6-4.2 3.8 1.2 5.6L12 16.2 7 19l1.2-5.6L4 9.6 9.6 9z"/>',
   todos: '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>',
+  cartaz: '<path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z"/>', // um ingresso de cinema
 };
 
 function icone(nome) {
@@ -32,7 +33,7 @@ export function criarCabecalho() {
   const painel = criar('header', 'lateral');
 
   const topo = criar('div', 'lateral-topo');
-  const marca = criar('a', 'marca', 'Em Cartaz');
+  const marca = criar('a', 'marca', 'Só Filmes');
   marca.href = 'index.html';
   // Espaço reservado: no futuro entra aqui o "Entrar" / nome do usuário.
   const areaUsuario = criar('div');
@@ -43,9 +44,10 @@ export function criarCabecalho() {
   menu.setAttribute('aria-label', 'Menu principal');
   const itens = [
     ['inicio', 'Início', 'index.html'],
-    ['destaque', 'Em destaque', 'index.html#destaques'],
+    ['destaque', 'Populares', 'index.html#populares'],
     ['ranking', 'Mais bem avaliados', 'index.html#ranking'],
-    ['todos', 'Todos em cartaz', 'index.html#todos'],
+    ['cartaz', 'Em cartaz', 'index.html#em-cartaz'],
+    ['todos', 'Explorar', 'index.html#explorar'],
   ];
   // Na página inicial, o item "Início" ganha o fundo claro de "você está aqui".
   const naInicial = !location.pathname.endsWith('filme.html');

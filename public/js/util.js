@@ -120,16 +120,6 @@ export function generoPrincipal(ids) {
   return conhecido ? GENEROS[conhecido] : '';
 }
 
-// Os `quantidade` filmes de nota mais alta. Filmes com menos de 10 votos
-// ficam de fora, porque uma nota com 2 ou 3 votos não é confiável.
-// Usa uma cópia da lista, para não bagunçar a ordem original.
-export function maisBemAvaliados(filmes, quantidade) {
-  return (filmes ?? [])
-    .filter((f) => f.vote_count >= 10 && f.vote_average > 0)
-    .sort((a, b) => b.vote_average - a.vote_average)
-    .slice(0, quantidade);
-}
-
 // Imagem deitada (formato de tela de cinema) do filme, ou uma genérica se não houver.
 export const IMAGEM_LARGA_GENERICA = 'img/sem-imagem.svg';
 export function imagemLarga(filme, tamanho) {

@@ -3,27 +3,66 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Em cartaz</title>
+    <title>Só Filmes</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <!-- O painel lateral e o rodapé são criados pelo JavaScript (js/componentes.js). -->
     <main class="conteudo">
-      <h1 class="so-leitor">Filmes em cartaz nos cinemas do Brasil</h1>
+      <h1 class="so-leitor">Só Filmes: pesquise e explore filmes</h1>
 
-      <!-- As duas primeiras fileiras ficam escondidas até os filmes chegarem. -->
-      <section id="destaques" class="secao" hidden>
-        <h2>Em destaque</h2>
-        <div id="fileira-destaques" class="fileira fileira-grande"></div>
+      <!-- Pesquisa e filtros. É um formulário comum: ao enviar, a página recarrega
+           com os valores no endereço (ex.: index.html?genero=27&nota=7).
+           Por isso o "Voltar" do navegador e os links compartilhados funcionam. -->
+      <form id="busca" class="busca" role="search" method="get" action="index.html">
+        <div class="busca-linha">
+          <label class="so-leitor" for="campo-busca">Pesquisar filme</label>
+          <input id="campo-busca" class="busca-campo" name="busca" type="search" maxlength="100" placeholder="Pesquisar filme..." />
+          <button class="botao botao-pequeno" type="submit">Buscar</button>
+        </div>
+        <div class="busca-linha">
+          <label class="filtro">
+            Gênero
+            <select id="filtro-genero" name="genero">
+              <option value="">Todos</option>
+              <!-- Os outros gêneros são acrescentados pelo js/lista.js. -->
+            </select>
+          </label>
+          <label class="filtro">
+            Nota
+            <select id="filtro-nota" name="nota">
+              <option value="">Qualquer</option>
+              <option value="5">5+</option>
+              <option value="6">6+</option>
+              <option value="7">7+</option>
+              <option value="8">8+</option>
+            </select>
+          </label>
+          <a class="botao botao-pequeno botao-vidro" href="index.html">Limpar</a>
+        </div>
+      </form>
+
+      <!-- Cada fileira tem a sua área de "Carregando…" / erro, porque carrega sozinha. -->
+      <section id="populares" class="secao">
+        <h2>Populares agora</h2>
+        <div id="fileira-populares" class="fileira fileira-grande"></div>
+        <div id="estado-populares" class="estado" role="status"></div>
       </section>
 
-      <section id="ranking" class="secao" hidden>
+      <section id="ranking" class="secao">
         <h2>Mais bem avaliados</h2>
         <ol id="fileira-ranking" class="fileira"></ol>
+        <div id="estado-ranking" class="estado" role="status"></div>
       </section>
 
-      <section id="todos" class="secao">
-        <h2>Todos em cartaz</h2>
+      <section id="em-cartaz" class="secao">
+        <h2>Em cartaz no Brasil</h2>
+        <div id="fileira-em-cartaz" class="fileira"></div>
+        <div id="estado-em-cartaz" class="estado" role="status"></div>
+      </section>
+
+      <section id="explorar" class="secao">
+        <h2 id="titulo-explorar">Explorar</h2>
         <div id="grade" class="grade"></div>
         <!-- Fica abaixo da grade para "Carregando…" e erros aparecerem perto do botão. -->
         <div id="estado" class="estado" role="status"></div>

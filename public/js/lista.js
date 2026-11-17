@@ -1,38 +1,134 @@
-// Tela de lista: mostra os filmes em cartaz em três partes:
-//   1. "Em destaque": 3 cartões grandes;
-//   2. "Mais bem avaliados": fileira numerada com as maiores notas;
-//   3. "Todos em cartaz": grade com todos, 20 por vez, com o botão "Carregar mais".
+// Tela inicial do Só Filmes. Funciona de dois jeitos:
+//
+//   1. Sem pesquisa nem filtro: mostra três fileiras ("Populares agora",
+//      "Mais bem avaliados" e "Em cartaz no Brasil") e, embaixo, a grade
+//      "Explorar" com os populares, 20 por vez, com o botão "Carregar mais".
+//   2. Com pesquisa ou filtro no endereço (ex.: ?busca=batman ou ?genero=27):
+//      esconde as fileiras e mostra só a grade com os resultados.
+//
+// A pesquisa e os filtros moram no endereço da página. Quem escreve neles é
+// o formulário do index.html; aqui nós só lemos (lerFiltrosDaUrl).
 
-import { buscarEmCartaz } from './api.js';
-import { removerRepetidos, temMaisPaginas, escolherDestaques, maisBemAvaliados } from './util.js';
+import {
+  buscarEmCartaz,
+  buscarPopulares,
+  buscarMaisAvaliados,
+  pesquisarFilmes,
+  descobrirFilmes,
+} from './api.js';
+import {
+  removerRepetidos,
+  temMaisPaginas,
+  escolherDestaques,
+  lerFiltrosDaUrl,
+  temFiltroAtivo,
+  tituloDosResultados,
+  mensagemSemResultados,
+  listaDeGeneros,
+} from './util.js';
 import { criar, criarCabecalho, criarRodape, criarCartao, criarDestaque, mostrarErro, adicionarSetas } from './componentes.js';
+
+document.body.prepend(criarCabecalho());
+document.body.append(criarRodape());
+
+const filtros = lerFiltrosDaUrl(location.search);
+
+// ---------- Formulário de pesquisa e filtros ----------
+
+const formulario = document.getElementById('busca');
+const campoBusca = document.getElementById('campo-busca');
+const seletorGenero = document.getElementById('filtro-genero');
+const seletorNota = document.getElementById('filtro-nota');
+
+// Coloca os gêneros no seletor, em ordem alfabética.
+for (const { id, nome } of listaDeGeneros()) {
+  const opcao = criar('option', null, nome);
+  opcao.value = String(id);
+  seletorGenero.append(opcao);
+}
+
+// O formulário mostra o que está no endereço (para a pessoa ver o que escolheu).
+campoBusca.value = filtros.busca;
+seletorGenero.value = filtros.genero === null ? '' : String(filtros.genero);
+seletorNota.value = filtros.nota === null ? '' : String(filtros.nota);
+
+// Enquanto houver texto na pesquisa, os filtros ficam apagados:
+// o TMDB não sabe combinar pesquisa por nome com gênero e nota.
+function atualizarFiltrosApagados() {
+  const temTexto = campoBusca.value.trim() !== '';
+  seletorGenero.disabled = temTexto;
+  seletorNota.disabled = temTexto;
+}
+campoBusca.addEventListener('input', atualizarFiltrosApagados);
+atualizarFiltrosApagados();
+
+// Trocar o gênero ou a nota já envia o formulário, sem precisar clicar em nada.
+seletorGenero.addEventListener('change', () => formulario.requestSubmit());
+seletorNota.addEventListener('change', () => formulario.requestSubmit());
+
+// Antes de enviar, desliga os campos vazios: campos desligados não vão para o
+// endereço, que fica "?genero=27" em vez de "?busca=&genero=27&nota=".
+formulario.addEventListener('submit', () => {
+  campoBusca.value = campoBusca.value.trim();
+  for (const campo of [campoBusca, seletorGenero, seletorNota]) {
+    if (campo.value === '') campo.disabled = true;
+  }
+});
+
+// Ao voltar para esta página pelo "Voltar" do navegador, alguns navegadores
+// mostram a página guardada, com os campos ainda desligados. Aqui religamos.
+window.addEventListener('pageshow', () => {
+  campoBusca.disabled = false;
+  atualizarFiltrosApagados();
+});
+
+// ---------- As três fileiras do topo ----------
+
+// Carrega uma fileira sozinha: se ela der erro, só ela mostra o "Tentar de novo".
+//   idSecao: id da <section> no index.html (ex.: 'populares')
+//   buscar: função de api.js que traz a página 1
+//   montarItens: recebe os filmes e devolve os cartões prontos
+async function carregarFileira(idSecao, buscar, montarItens) {
+  const secao = document.getElementById(idSecao);
+  const fileira = secao.querySelector('.fileira');
+  const estado = document.getElementById(`estado-${idSecao}`);
+  estado.textContent = 'Carregando…';
+
+  try {
+    const dados = await buscar(1);
+    const itens = montarItens(dados.results ?? []);
+    fileira.replaceChildren(...itens);
+    estado.textContent = '';
+    secao.hidden = itens.length === 0; // fileira vazia não aparece
+  } catch (e) {
+    mostrarErro(estado, e.message, () => carregarFileira(idSecao, buscar, montarItens));
+  }
+}
+
+// Cartões numerados (1, 2, 3...) dentro de uma lista <ol>.
+function itensDoRanking(filmes) {
+  return filmes.slice(0, 10).map((filme, i) => {
+    const item = criar('li');
+    item.append(criarCartao(filme, i + 1));
+    return item;
+  });
+}
+
+// ---------- A grade "Explorar" com o "Carregar mais" ----------
 
 const grade = document.getElementById('grade');
 const estado = document.getElementById('estado');
 const botaoMais = document.getElementById('carregar-mais');
 
-document.body.prepend(criarCabecalho());
-document.body.append(criarRodape());
+// De onde vêm os filmes da grade, conforme o que está no endereço.
+function fonteDaGrade(pagina) {
+  if (filtros.busca) return pesquisarFilmes(filtros.busca, pagina);
+  if (temFiltroAtivo(filtros)) return descobrirFilmes(filtros, pagina);
+  return buscarPopulares(pagina);
+}
 
 let filmesNaTela = []; // filmes já mostrados (para não repetir)
 let ultimaPagina = 0; // última página carregada com sucesso
-
-// Preenche as duas fileiras do topo com os filmes da primeira página.
-// Cada fileira só aparece se tiver algum filme.
-function montarFileiras(filmes) {
-  const destaques = escolherDestaques(filmes, 3);
-  document.getElementById('fileira-destaques').replaceChildren(...destaques.map(criarDestaque));
-  document.getElementById('destaques').hidden = destaques.length === 0;
-
-  const ranking = maisBemAvaliados(filmes, 10);
-  const itens = ranking.map((filme, i) => {
-    const item = criar('li');
-    item.append(criarCartao(filme, i + 1));
-    return item;
-  });
-  document.getElementById('fileira-ranking').replaceChildren(...itens);
-  document.getElementById('ranking').hidden = ranking.length === 0;
-}
 
 async function carregarPagina(pagina) {
   botaoMais.disabled = true; // evita clique duplo enquanto carrega
@@ -40,14 +136,13 @@ async function carregarPagina(pagina) {
   estado.textContent = 'Carregando…';
 
   try {
-    const dados = await buscarEmCartaz(pagina);
-    if (pagina === 1) montarFileiras(dados.results);
-    const novos = removerRepetidos(filmesNaTela, dados.results);
+    const dados = await fonteDaGrade(pagina);
+    const novos = removerRepetidos(filmesNaTela, dados.results ?? []);
     filmesNaTela = filmesNaTela.concat(novos);
     grade.append(...novos.map((filme) => criarCartao(filme)));
     ultimaPagina = pagina;
 
-    estado.textContent = filmesNaTela.length === 0 ? 'Nenhum filme em cartaz no momento.' : '';
+    estado.textContent = filmesNaTela.length === 0 ? mensagemSemResultados(filtros) : '';
     botaoMais.hidden = !temMaisPaginas(dados);
   } catch (e) {
     botaoMais.hidden = true;
@@ -57,12 +152,26 @@ async function carregarPagina(pagina) {
   }
 }
 
-// Setas "‹ ›" ao lado do título de cada fileira.
-for (const id of ['destaques', 'ranking']) {
-  const secao = document.getElementById(id);
-  adicionarSetas(secao.querySelector('h2'), secao.querySelector('.fileira'));
-}
-
 botaoMais.addEventListener('click', () => carregarPagina(ultimaPagina + 1));
+
+// ---------- Começo: decide o que mostrar ----------
+
+if (temFiltroAtivo(filtros)) {
+  // Com pesquisa ou filtro: só a grade, com um título que diz o que está sendo mostrado.
+  for (const id of ['populares', 'ranking', 'em-cartaz']) {
+    document.getElementById(id).hidden = true;
+  }
+  document.getElementById('titulo-explorar').textContent = tituloDosResultados(filtros);
+} else {
+  // Setas "‹ ›" ao lado do título de cada fileira.
+  for (const id of ['populares', 'ranking', 'em-cartaz']) {
+    const secao = document.getElementById(id);
+    adicionarSetas(secao.querySelector('h2'), secao.querySelector('.fileira'));
+  }
+  // As três fileiras carregam ao mesmo tempo, cada uma por conta própria.
+  carregarFileira('populares', buscarPopulares, (filmes) => escolherDestaques(filmes, 3).map(criarDestaque));
+  carregarFileira('ranking', buscarMaisAvaliados, itensDoRanking);
+  carregarFileira('em-cartaz', buscarEmCartaz, (filmes) => filmes.map((filme) => criarCartao(filme)));
+}
 
 carregarPagina(1);

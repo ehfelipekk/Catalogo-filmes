@@ -17,7 +17,6 @@ import {
   passoDaSeta,
   lerIdDaUrl,
   generoPrincipal,
-  maisBemAvaliados,
   imagemLarga,
   escolherDestaques,
   lerFiltrosDaUrl,
@@ -149,20 +148,6 @@ test('generoPrincipal devolve o nome do primeiro gênero conhecido', () => {
   assert.equal(generoPrincipal([999999]), '');
   assert.equal(generoPrincipal([]), '');
   assert.equal(generoPrincipal(undefined), '');
-});
-
-test('maisBemAvaliados ordena pela nota e ignora filmes com poucos votos', () => {
-  const filmes = [
-    { id: 1, vote_average: 6.1, vote_count: 300 },
-    { id: 2, vote_average: 9.9, vote_count: 3 }, // poucos votos: fica de fora
-    { id: 3, vote_average: 8.2, vote_count: 50 },
-    { id: 4, vote_average: 0, vote_count: 0 },
-    { id: 5, vote_average: 7.0, vote_count: 10 },
-  ];
-  assert.deepEqual(maisBemAvaliados(filmes, 10).map((f) => f.id), [3, 5, 1]);
-  assert.deepEqual(maisBemAvaliados(filmes, 2).map((f) => f.id), [3, 5]);
-  assert.equal(filmes[0].id, 1, 'não pode mudar a ordem da lista original');
-  assert.deepEqual(maisBemAvaliados(undefined, 10), []);
 });
 
 test('imagemLarga usa a imagem de fundo do filme ou uma imagem genérica deitada', () => {

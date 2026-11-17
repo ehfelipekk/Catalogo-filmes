@@ -57,3 +57,13 @@ test('api.js monta o pedido certo para cada rota nova', async () => {
     `${F}rota=descobrir&nota=7&page=1`,
   ]);
 });
+
+test('a inicial tem o formulário de busca e as quatro seções na ordem', () => {
+  const html = readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+  assert.match(html, /<title>Só Filmes<\/title>/);
+  assert.match(html, /<form[^>]*id="busca"[^>]*method="get"[^>]*action="index.html"/);
+  for (const nome of ['busca', 'genero', 'nota']) assert.match(html, new RegExp(`name="${nome}"`));
+  const ordem = ['id="populares"', 'id="ranking"', 'id="em-cartaz"', 'id="explorar"'].map((s) => html.indexOf(s));
+  assert.ok(ordem.every((p, i) => p > 0 && (i === 0 || p > ordem[i - 1])));
+  assert.doesNotMatch(html, /em cartaz nos cinemas do Brasil/i);
+});
