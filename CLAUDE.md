@@ -1,6 +1,6 @@
-# Catálogo de Filmes em Cartaz
+# Só Filmes
 
-Site que lista os filmes em cartaz nos cinemas do Brasil (dados do TMDB), com página de detalhes. No ar em https://catalogocartazteste.netlify.app, com código em https://github.com/ehfelipekk/Catalogo-filmes. A Netlify publica automaticamente a cada push no `main`.
+Catálogo geral de filmes do TMDB (antes se chamava "Em Cartaz" e só mostrava os filmes em cartaz). Tem pesquisa por nome, filtros de gênero e nota mínima, fileiras de Populares, Mais bem avaliados e Em cartaz no Brasil, e página de detalhes. No ar em https://catalogocartazteste.netlify.app, com código em https://github.com/ehfelipekk/Catalogo-filmes. A Netlify publica automaticamente a cada push no `main`.
 
 ## Sobre o autor
 
@@ -16,6 +16,10 @@ Site que lista os filmes em cartaz nos cinemas do Brasil (dados do TMDB), com p�
 - O rodapé mantém o logo do TMDB e o aviso de atribuição.
 - Lógica pura vai em `public/js/util.js`, com testes. Escreva o teste antes (TDD). Rode `npm test` (node:test, sem dependências).
 - O autor escolheu manter o botão "Carregar mais", e não a rolagem infinita.
+- **Rotas do servidor** (`tmdb.js`, só estas): `now_playing`, `filme`, `populares`, `mais_avaliados`, `pesquisa` e `descobrir`. Para acrescentar outra, crie uma rota nova com os valores conferidos, nunca um repasse aberto.
+- **Pesquisa e filtros são separados de propósito:** o TMDB não combina pesquisa por nome com gênero e nota. Com texto na pesquisa, os filtros ficam desligados e são ignorados.
+- **O estado da pesquisa fica no endereço** (`?busca=`, `?genero=` e `?nota=`, lidos por `lerFiltrosDaUrl` em util.js), via um `<form method="get">` comum. Assim o Voltar e os links compartilhados funcionam.
+- **"Mais bem avaliados"** usa `/discover` com no mínimo 2.000 votos (a lista `top_rated` do TMDB punha lançamentos com poucos votos na frente dos clássicos). O filtro de nota exige 100 votos.
 
 ## Como rodar
 
@@ -23,8 +27,10 @@ Site que lista os filmes em cartaz nos cinemas do Brasil (dados do TMDB), com p�
 
 ## Documentos
 
-- Design (decisões e porquês): `docs/superpowers/specs/2026-11-16-catalogo-filmes-design.md`
-- Plano de implementação: `docs/superpowers/plans/2026-11-16-catalogo-filmes.md`
+- Design original (decisões e porquês): `docs/superpowers/specs/2026-11-16-catalogo-filmes-design.md`
+- Plano original: `docs/superpowers/plans/2026-11-16-catalogo-filmes.md`
+- Design da busca, filtros e catálogo geral: `docs/superpowers/specs/2026-11-17-busca-e-filtros-design.md`
+- Plano da busca e filtros: `docs/superpowers/plans/2026-11-17-busca-e-filtros.md`
 
 ## Próxima etapa planejada: usuários e favoritos
 

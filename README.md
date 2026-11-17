@@ -1,6 +1,6 @@
-# Catálogo de Filmes em Cartaz
+# Só Filmes
 
-Site que mostra os filmes em cartaz nos cinemas do Brasil, com dados do [TMDB](https://www.themoviedb.org/).
+Site para pesquisar e explorar filmes de qualquer época, com dados do [TMDB](https://www.themoviedb.org/). Dá para pesquisar pelo nome, filtrar por gênero e por nota mínima, e ver os populares, os mais bem avaliados e o que está em cartaz no Brasil.
 
 No ar: https://catalogocartazteste.netlify.app
 
