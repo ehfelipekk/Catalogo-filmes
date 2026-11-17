@@ -13,6 +13,8 @@ import {
   classificacaoBR,
   dataLancamentoBR,
   elencoPrincipal,
+  setasDaFileira,
+  passoDaSeta,
   lerIdDaUrl,
   generoPrincipal,
   maisBemAvaliados,
@@ -176,4 +178,23 @@ test('escolherDestaques pega os primeiros filmes que têm imagem de fundo', () =
   ];
   assert.deepEqual(escolherDestaques(filmes, 3).map((f) => f.id), [1, 3, 4]);
   assert.deepEqual(escolherDestaques(undefined, 3), []);
+});
+
+test('setasDaFileira diz quais setas fazem sentido em cada posição', () => {
+  // Fileira de 2000px numa janela de 800px.
+  assert.deepEqual(setasDaFileira(0, 2000, 800), { voltar: false, avancar: true });
+  assert.deepEqual(setasDaFileira(500, 2000, 800), { voltar: true, avancar: true });
+  assert.deepEqual(setasDaFileira(1200, 2000, 800), { voltar: true, avancar: false });
+  // Folga de 1px: alguns navegadores param em 1199,5 em vez de 1200.
+  assert.deepEqual(setasDaFileira(1199.5, 2000, 800), { voltar: true, avancar: false });
+  // Tudo cabe na tela: nenhuma seta.
+  assert.deepEqual(setasDaFileira(0, 800, 800), { voltar: false, avancar: false });
+});
+
+test('passoDaSeta anda quase uma tela de cartões, sem contar as margens', () => {
+  // Janela de 1800px, com 284px de margem à esquerda e 40px à direita:
+  // a área de cartões tem 1476px; a seta anda 90% disso.
+  assert.equal(passoDaSeta(1800, 284, 40), 1328);
+  // Nunca anda menos de 200px, mesmo em telas estreitas.
+  assert.equal(passoDaSeta(220, 16, 16), 200);
 });

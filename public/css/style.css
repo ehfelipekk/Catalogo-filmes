@@ -239,8 +239,71 @@ h2 {
   list-style: none;
   scroll-snap-type: x proximity;
   scroll-padding-left: var(--recuo);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  scroll-behavior: smooth; /* as setas deslizam a fileira, em vez de pular */
+  /* A barra de rolagem fica escondida: quem anda a fileira são as setas
+     (ou o dedo, no celular, e o trackpad, no notebook). */
+  scrollbar-width: none;
+}
+
+.fileira::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Título da fileira com as setas ao lado ---------- */
+
+.secao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 14px;
+}
+
+.secao-topo h2 {
+  margin: 0;
+}
+
+.setas {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+/* Botão redondo de vidro, no mesmo estilo do painel lateral. */
+.seta {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--borda-vidro);
+  border-radius: 50%;
+  background: var(--vidro);
+  color: var(--texto);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.seta svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Ao passar o mouse, a seta acende com o mesmo claro do item ativo do menu. */
+.seta:hover:not(:disabled) {
+  background: var(--pilula);
+  color: var(--pilula-texto);
+}
+
+/* No começo ou no fim da fileira, a seta que não leva a lugar nenhum fica apagada. */
+.seta:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 .fileira > * {
@@ -596,10 +659,23 @@ h2 {
   }
 }
 
+/* Em telas de toque (celular, tablet) a fileira anda com o dedo,
+   então as setas não são necessárias. */
+@media (hover: none) {
+  .setas {
+    display: none;
+  }
+}
+
 /* Para quem pediu ao sistema menos movimento na tela. */
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html,
+  .fileira {
     scroll-behavior: auto;
+  }
+
+  .seta {
+    transition: none;
   }
 
   .cartao-imagem,

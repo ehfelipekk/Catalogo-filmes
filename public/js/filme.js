@@ -12,7 +12,7 @@ import {
   dataLancamentoBR,
   elencoPrincipal,
 } from './util.js';
-import { criar, criarCabecalho, criarRodape, mostrarErro } from './componentes.js';
+import { criar, criarCabecalho, criarRodape, mostrarErro, adicionarSetas } from './componentes.js';
 
 const area = document.getElementById('detalhes');
 
@@ -91,7 +91,9 @@ export function montarDetalhes(filme) {
       if (pessoa.character) item.append(criar('span', null, pessoa.character));
       lista.append(item);
     }
-    secao.append(criar('h2', null, 'Elenco principal'), lista);
+    const titulo = criar('h2', null, 'Elenco principal');
+    secao.append(titulo, lista);
+    adicionarSetas(titulo, lista);
     pagina.append(secao);
   }
 

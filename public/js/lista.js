@@ -5,7 +5,7 @@
 
 import { buscarEmCartaz } from './api.js';
 import { removerRepetidos, temMaisPaginas, escolherDestaques, maisBemAvaliados } from './util.js';
-import { criar, criarCabecalho, criarRodape, criarCartao, criarDestaque, mostrarErro } from './componentes.js';
+import { criar, criarCabecalho, criarRodape, criarCartao, criarDestaque, mostrarErro, adicionarSetas } from './componentes.js';
 
 const grade = document.getElementById('grade');
 const estado = document.getElementById('estado');
@@ -55,6 +55,12 @@ async function carregarPagina(pagina) {
   } finally {
     botaoMais.disabled = false;
   }
+}
+
+// Setas "‹ ›" ao lado do título de cada fileira.
+for (const id of ['destaques', 'ranking']) {
+  const secao = document.getElementById(id);
+  adicionarSetas(secao.querySelector('h2'), secao.querySelector('.fileira'));
 }
 
 botaoMais.addEventListener('click', () => carregarPagina(ultimaPagina + 1));

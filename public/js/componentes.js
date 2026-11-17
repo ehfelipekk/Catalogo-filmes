@@ -1,7 +1,7 @@
 // Pedaços de página reaproveitados pelas duas telas.
 // Cada função recebe dados e devolve um elemento HTML pronto para ser colocado na página.
 
-import { urlImagem, formatarNota, generoPrincipal, imagemLarga } from './util.js';
+import { urlImagem, formatarNota, generoPrincipal, imagemLarga, setasDaFileira, passoDaSeta } from './util.js';
 
 // Atalho para criar um elemento com classe e texto.
 export function criar(tag, classe, texto) {
@@ -138,4 +138,61 @@ export function mostrarErro(container, mensagem, aoTentarDeNovo) {
   botao.addEventListener('click', aoTentarDeNovo);
   caixa.append(botao);
   container.replaceChildren(caixa);
+}
+
+// ---------- Setas das fileiras ----------
+
+// Desenho de uma seta ("‹" ou "›"), também um texto fixo nosso.
+const SETA = {
+  voltar: '<path d="M15 5 8 12l7 7"/>',
+  avancar: '<path d="m9 5 7 7-7 7"/>',
+};
+
+function botaoSeta(direcao, rotulo) {
+  const botao = criar('button', 'seta');
+  botao.type = 'button';
+  botao.setAttribute('aria-label', rotulo); // o que o leitor de tela fala
+  botao.title = rotulo; // a dica que aparece ao parar o mouse em cima
+  botao.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${SETA[direcao]}</svg>`;
+  return botao;
+}
+
+// Coloca as setas "‹ ›" ao lado do título de uma fileira.
+// Elas ficam na mesma linha do título, à direita: assim nunca ficam
+// por baixo do painel de vidro nem tampam os cartões.
+// Cada clique anda quase uma tela de cartões para o lado.
+export function adicionarSetas(titulo, fileira) {
+  const topo = criar('div', 'secao-topo');
+  titulo.replaceWith(topo); // o título sai do lugar e a linha nova entra...
+  const setas = criar('div', 'setas');
+  const voltar = botaoSeta('voltar', 'Ver filmes anteriores');
+  const avancar = botaoSeta('avancar', 'Ver mais filmes');
+  setas.append(voltar, avancar);
+  topo.append(titulo, setas); // ...e o título volta, agora com as setas ao lado.
+
+  function andar(sentido) {
+    const estilo = getComputedStyle(fileira);
+    const passo = passoDaSeta(
+      fileira.clientWidth,
+      parseFloat(estilo.paddingLeft),
+      parseFloat(estilo.paddingRight)
+    );
+    fileira.scrollBy({ left: sentido * passo }); // o CSS faz o movimento ser suave
+  }
+  voltar.addEventListener('click', () => andar(-1));
+  avancar.addEventListener('click', () => andar(1));
+
+  // Apaga a seta que não leva a lugar nenhum (no começo ou no fim da fileira)
+  // e esconde as duas se todos os cartões já cabem na tela.
+  function atualizar() {
+    const pode = setasDaFileira(fileira.scrollLeft, fileira.scrollWidth, fileira.clientWidth);
+    voltar.disabled = !pode.voltar;
+    avancar.disabled = !pode.avancar;
+    setas.hidden = !pode.voltar && !pode.avancar;
+  }
+  fileira.addEventListener('scroll', atualizar, { passive: true });
+  // Recalcula quando a janela muda de tamanho ou os cartões chegam.
+  new ResizeObserver(atualizar).observe(fileira);
+  new MutationObserver(atualizar).observe(fileira, { childList: true });
+  atualizar();
 }

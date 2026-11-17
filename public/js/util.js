@@ -139,3 +139,23 @@ export function imagemLarga(filme, tamanho) {
 export function escolherDestaques(filmes, quantidade) {
   return (filmes ?? []).filter((f) => f.backdrop_path).slice(0, quantidade);
 }
+
+// ---------- Setas das fileiras ----------
+
+// Diz quais setas mostrar, olhando onde a fileira está:
+//   posicao        = quanto já rolou para a direita (scrollLeft);
+//   larguraTotal   = largura de todos os cartões juntos (scrollWidth);
+//   larguraVisivel = largura da parte que aparece na tela (clientWidth).
+// A folga de 1px existe porque alguns navegadores param em 1199,5 em vez de 1200.
+export function setasDaFileira(posicao, larguraTotal, larguraVisivel) {
+  const fim = larguraTotal - larguraVisivel;
+  return { voltar: posicao > 1, avancar: posicao < fim - 1 };
+}
+
+// Quanto a fileira anda a cada clique na seta: 90% da área onde os cartões
+// aparecem (a tela menos as margens), para o último cartão visível continuar
+// um pouquinho à vista e a pessoa não se perder. Nunca menos de 200px.
+export function passoDaSeta(larguraVisivel, margemEsquerda, margemDireita) {
+  const area = larguraVisivel - margemEsquerda - margemDireita;
+  return Math.max(200, Math.round(area * 0.9));
+}
