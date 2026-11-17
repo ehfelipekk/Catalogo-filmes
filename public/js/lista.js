@@ -48,9 +48,12 @@ for (const { id, nome } of listaDeGeneros()) {
 }
 
 // O formulário mostra o que está no endereço (para a pessoa ver o que escolheu).
-campoBusca.value = filtros.busca;
-seletorGenero.value = filtros.genero === null ? '' : String(filtros.genero);
-seletorNota.value = filtros.nota === null ? '' : String(filtros.nota);
+function preencherFormulario() {
+  campoBusca.value = filtros.busca;
+  seletorGenero.value = filtros.genero === null ? '' : String(filtros.genero);
+  seletorNota.value = filtros.nota === null ? '' : String(filtros.nota);
+}
+preencherFormulario();
 
 // Enquanto houver texto na pesquisa, os filtros ficam apagados:
 // o TMDB não sabe combinar pesquisa por nome com gênero e nota.
@@ -75,10 +78,14 @@ formulario.addEventListener('submit', () => {
   }
 });
 
-// Ao voltar para esta página pelo "Voltar" do navegador, alguns navegadores
-// mostram a página guardada, com os campos ainda desligados. Aqui religamos.
+// Ao voltar para esta página pelo "Voltar" do navegador, o navegador tenta
+// "ajudar": devolve a página como ela estava, com os campos desligados ou
+// com o que a pessoa tinha escolhido depois (ex.: "Terror"), mesmo que a tela
+// mostre outra coisa. O evento "pageshow" acontece depois disso; então aqui
+// religamos os campos e voltamos a preenchê-los com o que está no endereço.
 window.addEventListener('pageshow', () => {
   campoBusca.disabled = false;
+  preencherFormulario();
   atualizarFiltrosApagados();
 });
 
