@@ -43,8 +43,10 @@ export function removerRepetidos(atuais, novos) {
   });
 }
 
+// Ainda há página seguinte? O TMDB não entrega páginas depois da 500,
+// mesmo quando diz que existem mais; por isso paramos nela.
 export function temMaisPaginas(dados) {
-  return dados.page < dados.total_pages;
+  return dados.page < Math.min(dados.total_pages, 500);
 }
 
 // Chave do trailer no YouTube, preferindo o dublado/legendado em português.
@@ -158,4 +160,68 @@ export function setasDaFileira(posicao, larguraTotal, larguraVisivel) {
 export function passoDaSeta(larguraVisivel, margemEsquerda, margemDireita) {
   const area = larguraVisivel - margemEsquerda - margemDireita;
   return Math.max(200, Math.round(area * 0.9));
+}
+
+// ---------- Busca e filtros (Só Filmes) ----------
+
+// Notas mínimas que o filtro oferece (5+, 6+, 7+, 8+).
+const NOTAS = [5, 6, 7, 8];
+
+// Lê a pesquisa e os filtros do endereço da página e confere cada um.
+// "?genero=27&nota=7" -> { busca: '', genero: 27, nota: 7 }
+// Valores estranhos (ex.: "?nota=9") viram null e são ignorados.
+// Se houver texto na pesquisa, gênero e nota são ignorados: o TMDB não combina os dois.
+export function lerFiltrosDaUrl(search) {
+  const params = new URLSearchParams(search);
+  const busca = (params.get('busca') ?? '').trim().slice(0, 100);
+  if (busca) return { busca, genero: null, nota: null };
+
+  const textoGenero = params.get('genero') ?? '';
+  const genero = /^\d+$/.test(textoGenero) && GENEROS[textoGenero] ? Number(textoGenero) : null;
+  const nota = NOTAS.find((n) => String(n) === params.get('nota')) ?? null;
+  return { busca, genero, nota };
+}
+
+// Há alguma pesquisa ou filtro escolhido?
+export function temFiltroAtivo(filtros) {
+  return filtros.busca !== '' || filtros.genero !== null || filtros.nota !== null;
+}
+
+// Título da grade de resultados.
+// { busca: 'batman' } -> 'Resultados para "batman"' | { genero: 27, nota: 7 } -> 'Terror · nota 7+'
+export function tituloDosResultados({ busca, genero, nota }) {
+  if (busca) return `Resultados para "${busca}"`;
+  if (genero !== null && nota !== null) return `${GENEROS[genero]} · nota ${nota}+`;
+  if (genero !== null) return GENEROS[genero];
+  if (nota !== null) return `Nota ${nota}+`;
+  return 'Explorar';
+}
+
+// Mensagem para quando a busca ou os filtros não acham nenhum filme.
+export function mensagemSemResultados(filtros) {
+  if (filtros.busca) return `Nenhum filme encontrado para "${filtros.busca}".`;
+  if (temFiltroAtivo(filtros)) return 'Nenhum filme encontrado com esses filtros.';
+  return 'Nenhum filme encontrado.';
+}
+
+// Gêneros em ordem alfabética, para o seletor: [{ id: 28, nome: 'Ação' }, ...]
+export function listaDeGeneros() {
+  return Object.entries(GENEROS)
+    .map(([id, nome]) => ({ id: Number(id), nome }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+}
+
+// Para onde o "← Voltar" da página do filme leva.
+// Se a pessoa veio da página inicial do nosso site, volta para o mesmo endereço,
+// com a pesquisa e os filtros. Se veio de outro lugar (ou de lugar nenhum), vai para a inicial.
+// `referrer` é a página anterior (document.referrer); `origem` é o nosso site (location.origin).
+export function destinoDoVoltar(referrer, origem) {
+  try {
+    const anterior = new URL(referrer);
+    const ehInicial = anterior.pathname === '/' || anterior.pathname.endsWith('/index.html');
+    if (anterior.origin === origem && ehInicial) return `index.html${anterior.search}`;
+  } catch {
+    // referrer vazio ou estranho: cai no padrão abaixo.
+  }
+  return 'index.html';
 }

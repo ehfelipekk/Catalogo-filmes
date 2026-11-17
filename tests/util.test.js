@@ -20,6 +20,12 @@ import {
   maisBemAvaliados,
   imagemLarga,
   escolherDestaques,
+  lerFiltrosDaUrl,
+  temFiltroAtivo,
+  tituloDosResultados,
+  mensagemSemResultados,
+  listaDeGeneros,
+  destinoDoVoltar,
 } from '../public/js/util.js';
 
 test('urlImagem monta o endereço do CDN ou usa o pôster genérico', () => {
@@ -197,4 +203,64 @@ test('passoDaSeta anda quase uma tela de cartões, sem contar as margens', () =>
   assert.equal(passoDaSeta(1800, 284, 40), 1328);
   // Nunca anda menos de 200px, mesmo em telas estreitas.
   assert.equal(passoDaSeta(220, 16, 16), 200);
+});
+
+// ---------- Busca e filtros (Só Filmes) ----------
+
+test('lerFiltrosDaUrl lê busca, gênero e nota válidos', () => {
+  assert.deepEqual(lerFiltrosDaUrl('?genero=27&nota=7'), { busca: '', genero: 27, nota: 7 });
+  assert.deepEqual(lerFiltrosDaUrl('?busca=%20batman%20'), { busca: 'batman', genero: null, nota: null });
+  assert.deepEqual(lerFiltrosDaUrl(''), { busca: '', genero: null, nota: null });
+});
+
+test('lerFiltrosDaUrl ignora valores inválidos e só espaços', () => {
+  assert.deepEqual(lerFiltrosDaUrl('?busca=%20%20&genero=abc&nota=9'), { busca: '', genero: null, nota: null });
+  assert.deepEqual(lerFiltrosDaUrl('?genero=99999&nota=4'), { busca: '', genero: null, nota: null });
+  assert.deepEqual(lerFiltrosDaUrl('?genero=&nota='), { busca: '', genero: null, nota: null });
+});
+
+test('lerFiltrosDaUrl: a pesquisa vence os filtros e é cortada em 100 caracteres', () => {
+  assert.deepEqual(lerFiltrosDaUrl('?busca=batman&genero=27&nota=7'), { busca: 'batman', genero: null, nota: null });
+  assert.equal(lerFiltrosDaUrl(`?busca=${'a'.repeat(150)}`).busca.length, 100);
+});
+
+test('temFiltroAtivo', () => {
+  assert.equal(temFiltroAtivo({ busca: '', genero: null, nota: null }), false);
+  assert.equal(temFiltroAtivo({ busca: 'x', genero: null, nota: null }), true);
+  assert.equal(temFiltroAtivo({ busca: '', genero: null, nota: 5 }), true);
+});
+
+test('tituloDosResultados', () => {
+  assert.equal(tituloDosResultados({ busca: 'batman', genero: null, nota: null }), 'Resultados para "batman"');
+  assert.equal(tituloDosResultados({ busca: '', genero: 27, nota: null }), 'Terror');
+  assert.equal(tituloDosResultados({ busca: '', genero: null, nota: 7 }), 'Nota 7+');
+  assert.equal(tituloDosResultados({ busca: '', genero: 27, nota: 7 }), 'Terror · nota 7+');
+  assert.equal(tituloDosResultados({ busca: '', genero: null, nota: null }), 'Explorar');
+});
+
+test('mensagemSemResultados', () => {
+  assert.equal(mensagemSemResultados({ busca: 'xyz', genero: null, nota: null }), 'Nenhum filme encontrado para "xyz".');
+  assert.equal(mensagemSemResultados({ busca: '', genero: 27, nota: 8 }), 'Nenhum filme encontrado com esses filtros.');
+  assert.equal(mensagemSemResultados({ busca: '', genero: null, nota: null }), 'Nenhum filme encontrado.');
+});
+
+test('listaDeGeneros vem em ordem alfabética', () => {
+  const lista = listaDeGeneros();
+  assert.equal(lista.length, 19);
+  assert.deepEqual(lista[0], { id: 28, nome: 'Ação' });
+  assert.deepEqual(lista.at(-1), { id: 53, nome: 'Thriller' });
+});
+
+test('destinoDoVoltar volta para a pesquisa só se veio da inicial do próprio site', () => {
+  const o = 'http://localhost:8888';
+  assert.equal(destinoDoVoltar(`${o}/index.html?busca=batman`, o), 'index.html?busca=batman');
+  assert.equal(destinoDoVoltar(`${o}/?genero=27#explorar`, o), 'index.html?genero=27');
+  assert.equal(destinoDoVoltar(`${o}/filme.html?id=2`, o), 'index.html');
+  assert.equal(destinoDoVoltar('https://google.com/index.html?q=x', o), 'index.html');
+  assert.equal(destinoDoVoltar('', o), 'index.html');
+});
+
+test('temMaisPaginas para na página 500, o limite do TMDB', () => {
+  assert.equal(temMaisPaginas({ page: 499, total_pages: 1001 }), true);
+  assert.equal(temMaisPaginas({ page: 500, total_pages: 1001 }), false);
 });
