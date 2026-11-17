@@ -11,6 +11,7 @@ import {
   classificacaoBR,
   dataLancamentoBR,
   elencoPrincipal,
+  destinoDoVoltar,
 } from './util.js';
 import { criar, criarCabecalho, criarRodape, mostrarErro, adicionarSetas } from './componentes.js';
 
@@ -20,8 +21,9 @@ document.body.prepend(criarCabecalho());
 document.body.append(criarRodape());
 
 function linkVoltar() {
-  const link = criar('a', 'voltar', '← Voltar para os filmes em cartaz');
-  link.href = 'index.html';
+  const link = criar('a', 'voltar', '← Voltar para os filmes');
+  // Se a pessoa veio de uma pesquisa no nosso site, volta para ela; senão, para a inicial.
+  link.href = destinoDoVoltar(document.referrer, location.origin);
   return link;
 }
 
