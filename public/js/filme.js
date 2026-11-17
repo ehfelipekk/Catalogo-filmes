@@ -79,11 +79,15 @@ export function montarDetalhes(filme) {
 
   const elenco = elencoPrincipal(filme.credits?.cast);
   if (elenco.length > 0) {
-    const secao = criar('section');
-    const lista = criar('ul', 'elenco');
+    const secao = criar('section', 'secao');
+    const lista = criar('ul', 'elenco fileira');
     for (const pessoa of elenco) {
       const item = criar('li');
-      item.append(criar('strong', null, pessoa.name));
+      const foto = criar('img', 'elenco-foto');
+      foto.src = urlImagem(pessoa.profile_path, 'w185');
+      foto.alt = ''; // o nome aparece logo abaixo, em texto
+      foto.loading = 'lazy';
+      item.append(foto, criar('strong', null, pessoa.name));
       if (pessoa.character) item.append(criar('span', null, pessoa.character));
       lista.append(item);
     }
@@ -93,7 +97,7 @@ export function montarDetalhes(filme) {
 
   const trailer = escolherTrailer(filme.videos?.results);
   if (trailer) {
-    const secao = criar('section');
+    const secao = criar('section', 'secao');
     const video = criar('iframe', 'trailer');
     video.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(trailer)}`;
     video.title = `Trailer de ${filme.title}`;

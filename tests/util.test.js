@@ -14,6 +14,10 @@ import {
   dataLancamentoBR,
   elencoPrincipal,
   lerIdDaUrl,
+  generoPrincipal,
+  maisBemAvaliados,
+  imagemLarga,
+  escolherDestaques,
 } from '../public/js/util.js';
 
 test('urlImagem monta o endereço do CDN ou usa o pôster genérico', () => {
@@ -129,4 +133,47 @@ test('lerIdDaUrl aceita só inteiros positivos', () => {
   for (const s of ['', '?id=', '?id=abc', '?id=-3', '?id=12abc', '?id=0']) {
     assert.equal(lerIdDaUrl(s), null, s);
   }
+});
+
+test('generoPrincipal devolve o nome do primeiro gênero conhecido', () => {
+  assert.equal(generoPrincipal([18, 28]), 'Drama');
+  assert.equal(generoPrincipal([999999, 878]), 'Ficção científica');
+  assert.equal(generoPrincipal([999999]), '');
+  assert.equal(generoPrincipal([]), '');
+  assert.equal(generoPrincipal(undefined), '');
+});
+
+test('maisBemAvaliados ordena pela nota e ignora filmes com poucos votos', () => {
+  const filmes = [
+    { id: 1, vote_average: 6.1, vote_count: 300 },
+    { id: 2, vote_average: 9.9, vote_count: 3 }, // poucos votos: fica de fora
+    { id: 3, vote_average: 8.2, vote_count: 50 },
+    { id: 4, vote_average: 0, vote_count: 0 },
+    { id: 5, vote_average: 7.0, vote_count: 10 },
+  ];
+  assert.deepEqual(maisBemAvaliados(filmes, 10).map((f) => f.id), [3, 5, 1]);
+  assert.deepEqual(maisBemAvaliados(filmes, 2).map((f) => f.id), [3, 5]);
+  assert.equal(filmes[0].id, 1, 'não pode mudar a ordem da lista original');
+  assert.deepEqual(maisBemAvaliados(undefined, 10), []);
+});
+
+test('imagemLarga usa a imagem de fundo do filme ou uma imagem genérica deitada', () => {
+  assert.equal(
+    imagemLarga({ backdrop_path: '/fundo.jpg' }, 'w780'),
+    'https://image.tmdb.org/t/p/w780/fundo.jpg'
+  );
+  assert.equal(imagemLarga({ backdrop_path: null }, 'w780'), 'img/sem-imagem.svg');
+  assert.equal(imagemLarga({}, 'w780'), 'img/sem-imagem.svg');
+});
+
+test('escolherDestaques pega os primeiros filmes que têm imagem de fundo', () => {
+  const filmes = [
+    { id: 1, backdrop_path: '/a.jpg' },
+    { id: 2, backdrop_path: null },
+    { id: 3, backdrop_path: '/c.jpg' },
+    { id: 4, backdrop_path: '/d.jpg' },
+    { id: 5, backdrop_path: '/e.jpg' },
+  ];
+  assert.deepEqual(escolherDestaques(filmes, 3).map((f) => f.id), [1, 3, 4]);
+  assert.deepEqual(escolherDestaques(undefined, 3), []);
 });

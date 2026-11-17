@@ -7,13 +7,28 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <!-- O cabeçalho e o rodapé são criados pelo JavaScript (js/componentes.js). -->
+    <!-- O painel lateral e o rodapé são criados pelo JavaScript (js/componentes.js). -->
     <main class="conteudo">
-      <h1>Em cartaz nos cinemas</h1>
-      <div id="grade" class="grade"></div>
-      <!-- Fica abaixo da grade para "Carregando…" e erros aparecerem perto do botão. -->
-      <div id="estado" class="estado" role="status"></div>
-      <button id="carregar-mais" class="botao" type="button" hidden>Carregar mais</button>
+      <h1 class="so-leitor">Filmes em cartaz nos cinemas do Brasil</h1>
+
+      <!-- As duas primeiras fileiras ficam escondidas até os filmes chegarem. -->
+      <section id="destaques" class="secao" hidden>
+        <h2>Em destaque</h2>
+        <div id="fileira-destaques" class="fileira fileira-grande"></div>
+      </section>
+
+      <section id="ranking" class="secao" hidden>
+        <h2>Mais bem avaliados</h2>
+        <ol id="fileira-ranking" class="fileira"></ol>
+      </section>
+
+      <section id="todos" class="secao">
+        <h2>Todos em cartaz</h2>
+        <div id="grade" class="grade"></div>
+        <!-- Fica abaixo da grade para "Carregando…" e erros aparecerem perto do botão. -->
+        <div id="estado" class="estado" role="status"></div>
+        <button id="carregar-mais" class="botao" type="button" hidden>Carregar mais</button>
+      </section>
     </main>
     <script type="module" src="js/lista.js"></script>
   </body>

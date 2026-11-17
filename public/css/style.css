@@ -1,12 +1,23 @@
-/* Visual do site: tema escuro, comum em sites de cinema. */
+/* Visual do site: inspirado em telas de streaming.
+   Fundo grafite, painel lateral "de vidro" e filmes em fileiras de cartões deitados.
+   Não há cor de destaque: quem dá cor à página são as imagens dos filmes. */
 
 :root {
-  --fundo: #121418;
-  --superficie: #1d2027;
-  --texto: #eceef2;
-  --texto-suave: #9aa0ad;
-  --destaque: #f5c518;
-  --raio: 10px;
+  --fundo: #1d1e22;
+  --brilho: #3b3d44; /* luz suave no canto de cima do fundo */
+  --vidro: rgba(70, 72, 78, 0.45);
+  --borda-vidro: rgba(255, 255, 255, 0.12);
+  --superficie: #2e3036; /* fundo das imagens enquanto carregam */
+  --texto: #f5f5f7;
+  --texto-suave: rgba(235, 235, 245, 0.6);
+  --numero: rgba(235, 235, 245, 0.42); /* números do ranking */
+  --pilula: #ececee; /* fundo claro do item ativo e dos botões */
+  --pilula-texto: #1d1e22;
+
+  /* Medidas do painel lateral e das margens da página. */
+  --lateral: 232px;
+  --recuo: 284px; /* espaço à esquerda do conteúdo (painel + folga) */
+  --direita: 40px;
 }
 
 * {
@@ -19,63 +30,164 @@
   display: none !important;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--fundo);
+  padding: 0 var(--direita) 0 var(--recuo);
+  background:
+    radial-gradient(1100px 700px at 0% 0%, var(--brilho), transparent 70%),
+    var(--fundo);
+  background-attachment: fixed;
   color: var(--texto);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
+  /* A fonte do próprio sistema (SF no Mac/iPhone, Segoe UI no Windows):
+     é limpa, combina com o estilo e não precisa ser baixada. */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI',
+    system-ui, Roboto, sans-serif;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
   color: inherit;
 }
 
-/* ---------- Cabeçalho e rodapé ---------- */
+/* Contorno visível para quem navega pelo teclado (tecla Tab). */
+:focus-visible {
+  outline: 3px solid var(--texto);
+  outline-offset: 3px;
+}
 
-.cabecalho {
+/* Texto que só leitores de tela "enxergam" (para pessoas cegas). */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 14px;
+}
+
+/* ---------- Painel lateral de vidro ---------- */
+
+.lateral {
+  position: fixed;
+  z-index: 10;
+  top: 16px;
+  bottom: 16px;
+  left: 16px;
+  width: var(--lateral);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 18px 10px;
+  border: 1px solid var(--borda-vidro);
+  border-radius: 28px;
+  background: var(--vidro);
+  /* O desfoque é o que dá o efeito de "vidro fosco" sobre os cartões que passam por baixo. */
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  backdrop-filter: blur(28px) saturate(1.6);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.lateral-topo {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
-  background: var(--superficie);
-  border-bottom: 1px solid #2c303a;
+  padding: 0 10px;
 }
 
 .marca {
+  font-size: 1.15rem;
   font-weight: 700;
-  font-size: 1.2rem;
+  letter-spacing: -0.01em;
   text-decoration: none;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 14px;
+  font-size: 1.02rem;
+  text-decoration: none;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* O item da página atual ganha o fundo claro, como uma "pílula". */
+.menu-item[aria-current='page'] {
+  background: var(--pilula);
+  color: var(--pilula-texto);
+  font-weight: 600;
+}
+
+.menu-icone {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.menu-item[aria-current='page'] .menu-icone {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.menu-icone svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* ---------- Conteúdo e rodapé ---------- */
+
+.conteudo {
+  width: 100%;
+  padding-top: 28px;
+}
+
+.secao {
+  margin-bottom: 36px;
 }
 
 .rodape {
   margin-top: auto;
-  padding: 24px 16px;
-  text-align: center;
+  padding: 28px 0 32px;
   color: var(--texto-suave);
   font-size: 0.85rem;
-  border-top: 1px solid #2c303a;
+  border-top: 1px solid var(--borda-vidro);
+}
+
+.rodape p {
+  margin: 8px 0 0;
 }
 
 .logo-tmdb {
-  width: 140px;
-}
-
-/* ---------- Conteúdo ---------- */
-
-.conteudo {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px;
-}
-
-h1 {
-  font-size: 1.6rem;
-  margin: 8px 0 20px;
+  width: 130px;
 }
 
 .estado {
@@ -85,23 +197,28 @@ h1 {
 
 .erro {
   padding: 24px;
-  background: var(--superficie);
-  border-radius: var(--raio);
+  background: var(--vidro);
+  border: 1px solid var(--borda-vidro);
+  border-radius: 18px;
   text-align: center;
   color: var(--texto);
 }
 
 .botao {
   display: block;
-  margin: 24px auto;
-  padding: 10px 22px;
+  margin: 28px auto 8px;
+  padding: 11px 26px;
   border: none;
   border-radius: 999px;
-  background: var(--destaque);
-  color: #111;
-  font-weight: 700;
-  font-size: 1rem;
+  background: var(--pilula);
+  color: var(--pilula-texto);
+  font: inherit;
+  font-weight: 600;
   cursor: pointer;
+}
+
+.botao:hover {
+  background: #fff;
 }
 
 .botao:disabled {
@@ -109,148 +226,391 @@ h1 {
   cursor: wait;
 }
 
-/* ---------- Grade de filmes ----------
-   "auto-fill" + "minmax" faz a grade se ajustar sozinha à largura da tela:
-   2 colunas no celular, até 5 ou 6 no computador. */
+/* ---------- Fileiras que rolam para o lado ----------
+   A fileira "estica" até as bordas da tela (margem negativa),
+   assim os cartões passam por baixo do painel de vidro ao rolar. */
 
-.grade {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+.fileira {
+  display: flex;
+  gap: 22px;
+  margin: 0 calc(-1 * var(--direita)) 0 calc(-1 * var(--recuo));
+  padding: 6px var(--direita) 12px var(--recuo);
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: var(--recuo);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
-@media (max-width: 400px) {
-  .grade {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
+.fileira > * {
+  flex: none;
+  width: clamp(230px, 21vw, 320px);
+  scroll-snap-align: start;
 }
+
+.fileira-grande > * {
+  width: clamp(290px, 38vw, 560px);
+}
+
+/* ---------- Cartão deitado ---------- */
 
 .cartao {
-  display: flex;
-  flex-direction: column;
-  background: var(--superficie);
-  border-radius: var(--raio);
-  overflow: hidden;
+  display: block;
   text-decoration: none;
-  transition: transform 0.15s;
+  border-radius: 14px;
 }
 
-.cartao:hover,
-.cartao:focus-visible {
-  transform: translateY(-4px);
-}
-
-.poster {
+.cartao-imagem {
+  display: block;
   width: 100%;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  background: #2a2d34;
+  border-radius: 14px;
+  background: var(--superficie);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Ao passar o mouse ou chegar pelo teclado, a imagem "levanta". */
+.cartao:hover .cartao-imagem,
+.cartao:focus-visible .cartao-imagem {
+  transform: scale(1.04);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+}
+
+.cartao:focus-visible {
+  outline: none;
+}
+
+.cartao:focus-visible .cartao-imagem {
+  outline: 3px solid var(--texto);
+  outline-offset: 3px;
+}
+
+.cartao-legenda {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cartao-textos {
+  min-width: 0; /* deixa o "…" funcionar em títulos longos */
 }
 
 .cartao-titulo {
-  font-size: 0.95rem;
-  margin: 8px 10px 2px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.nota {
-  margin: 0 10px 10px;
-  color: var(--destaque);
-  font-size: 0.85rem;
-  font-weight: 600;
+.detalhes-linha {
+  display: flex;
+  gap: 12px;
+  margin: 1px 0 0;
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+.detalhes-linha:empty {
+  display: none;
+}
+
+/* Número grande do ranking, ao lado do título. */
+.posicao {
+  flex: none;
+  font-size: 3.1rem;
+  font-weight: 700;
+  line-height: 0.82;
+  letter-spacing: -0.03em;
+  color: var(--numero);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Grade "Todos em cartaz" ---------- */
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 30px 22px;
+}
+
+/* ---------- Cartão grande de destaque ---------- */
+
+.destaque {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--superficie);
+  text-decoration: none;
+}
+
+.destaque-imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.destaque:hover .destaque-imagem,
+.destaque:focus-visible .destaque-imagem {
+  transform: scale(1.03);
+}
+
+/* Escurece a parte de baixo da imagem para o título ficar legível. */
+.destaque::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.78));
+}
+
+.destaque-textos {
+  position: absolute;
+  z-index: 1;
+  left: 24px;
+  right: 24px;
+  bottom: 20px;
+}
+
+.destaque-titulo {
+  margin: 0;
+  max-width: 16ch;
+  font-size: clamp(1.4rem, 2.3vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.destaque .detalhes-linha {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 /* ---------- Tela de detalhes ---------- */
 
-.filme.com-fundo {
-  /* Imagem de fundo do filme, escurecida para o texto ficar legível. */
-  background:
-    linear-gradient(rgba(18, 20, 24, 0.82), var(--fundo) 520px),
-    var(--fundo-filme) center top / cover no-repeat;
-  border-radius: var(--raio);
-  padding: 16px;
-}
-
 .filme-topo {
   display: flex;
-  gap: 24px;
+  gap: 28px;
   flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+/* Com imagem de fundo: o topo vira um painel grande, com o texto no canto de baixo. */
+.com-fundo .filme-topo {
+  align-items: flex-end;
+  min-height: min(72vh, 640px);
+  padding: 40px;
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, rgba(20, 21, 24, 0.92), rgba(20, 21, 24, 0.55) 50%, transparent 80%),
+    linear-gradient(0deg, rgba(20, 21, 24, 0.8), transparent 55%),
+    var(--fundo-filme) center / cover no-repeat,
+    var(--superficie);
+}
+
+/* Com imagem de fundo, o pôster sobra: a imagem larga já mostra o filme. */
+.com-fundo .filme-poster {
+  display: none;
 }
 
 .filme-poster {
-  width: 260px;
+  width: 240px;
   max-width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
-  border-radius: var(--raio);
-  background: #2a2d34;
+  border-radius: 18px;
+  background: var(--superficie);
 }
 
 .filme-texto {
   flex: 1 1 300px;
+  max-width: 62ch;
 }
 
 .filme-texto h1 {
   margin: 0 0 4px;
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.filme-texto h2 {
+  font-size: 1.1rem;
+  margin: 18px 0 4px;
 }
 
 .titulo-original {
   margin: 0 0 8px;
   color: var(--texto-suave);
-  font-style: italic;
+}
+
+.nota {
+  white-space: nowrap;
 }
 
 .nota-grande {
-  display: block;
-  font-size: 1.2rem;
-  margin: 8px 0;
+  margin: 10px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .infos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
   list-style: none;
   padding: 0;
   margin: 12px 0;
+  color: var(--texto-suave);
 }
 
-.infos li {
-  margin: 4px 0;
+.infos strong {
+  font-weight: 500;
+  color: var(--texto);
 }
 
 .sinopse {
-  max-width: 70ch;
+  margin: 0;
 }
 
-.elenco {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.elenco li {
+/* Elenco: fileira de fotos redondas com nome e personagem embaixo. */
+.elenco > li {
+  width: 128px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.elenco-foto {
+  width: 104px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 10px;
   background: var(--superficie);
-  border-radius: var(--raio);
-  padding: 10px 12px;
+}
+
+.elenco strong {
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 .elenco span {
   color: var(--texto-suave);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .trailer {
+  display: block;
   width: 100%;
-  max-width: 800px;
+  max-width: 880px;
   aspect-ratio: 16 / 9;
   border: 0;
-  border-radius: var(--raio);
+  border-radius: 20px;
 }
 
 .voltar {
   display: inline-block;
-  margin-top: 24px;
-  color: var(--destaque);
+  margin: 8px 0 32px;
+  color: var(--texto-suave);
+}
+
+.voltar:hover {
+  color: var(--texto);
+}
+
+/* ---------- Celular e telas estreitas ----------
+   O painel lateral vira uma barra de vidro presa no topo,
+   com o menu em "pílulas" que rolam para o lado. */
+
+@media (max-width: 820px) {
+  :root {
+    --recuo: 16px;
+    --direita: 16px;
+  }
+
+  html {
+    scroll-padding-top: 130px; /* os links do menu não param escondidos atrás da barra */
+  }
+
+  .lateral {
+    position: sticky;
+    top: 8px;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    margin: 8px 0 0;
+    gap: 10px;
+    padding: 12px 8px 8px;
+    border-radius: 22px;
+  }
+
+  .menu {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .menu-item {
+    flex: none;
+    gap: 8px;
+    padding: 5px 14px 5px 5px;
+    border-radius: 999px;
+    font-size: 0.92rem;
+  }
+
+  .menu-icone {
+    width: 26px;
+    height: 26px;
+  }
+
+  .conteudo {
+    padding-top: 22px;
+  }
+
+  .grade {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  }
+
+  .fileira > * {
+    width: 72vw;
+  }
+
+  .fileira-grande > * {
+    width: 86vw;
+  }
+
+  .com-fundo .filme-topo {
+    min-height: 62vh;
+    padding: 22px;
+  }
+}
+
+/* Para quem pediu ao sistema menos movimento na tela. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .cartao-imagem,
+  .destaque-imagem {
+    transition: none;
+  }
+
+  .cartao:hover .cartao-imagem,
+  .cartao:focus-visible .cartao-imagem,
+  .destaque:hover .destaque-imagem,
+  .destaque:focus-visible .destaque-imagem {
+    transform: none;
+  }
 }

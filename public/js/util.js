@@ -85,3 +85,57 @@ export function lerIdDaUrl(search) {
   const id = Number(texto);
   return id > 0 ? id : null;
 }
+
+// ---------- Novidades do visual em fileiras ----------
+
+// Nomes dos gêneros do TMDB em português. A lista de filmes em cartaz traz
+// só os números (genre_ids); esta tabela traduz o número para o nome.
+const GENEROS = {
+  28: 'Ação',
+  12: 'Aventura',
+  16: 'Animação',
+  35: 'Comédia',
+  80: 'Crime',
+  99: 'Documentário',
+  18: 'Drama',
+  10751: 'Família',
+  14: 'Fantasia',
+  36: 'História',
+  27: 'Terror',
+  10402: 'Música',
+  9648: 'Mistério',
+  10749: 'Romance',
+  878: 'Ficção científica',
+  10770: 'Cinema TV',
+  53: 'Thriller',
+  10752: 'Guerra',
+  37: 'Faroeste',
+};
+
+// [18, 28] -> "Drama" (o primeiro gênero que a tabela conhece) | nada -> ""
+export function generoPrincipal(ids) {
+  const conhecido = (ids ?? []).find((id) => GENEROS[id]);
+  return conhecido ? GENEROS[conhecido] : '';
+}
+
+// Os `quantidade` filmes de nota mais alta. Filmes com menos de 10 votos
+// ficam de fora, porque uma nota com 2 ou 3 votos não é confiável.
+// Usa uma cópia da lista, para não bagunçar a ordem original.
+export function maisBemAvaliados(filmes, quantidade) {
+  return (filmes ?? [])
+    .filter((f) => f.vote_count >= 10 && f.vote_average > 0)
+    .sort((a, b) => b.vote_average - a.vote_average)
+    .slice(0, quantidade);
+}
+
+// Imagem deitada (formato de tela de cinema) do filme, ou uma genérica se não houver.
+export const IMAGEM_LARGA_GENERICA = 'img/sem-imagem.svg';
+export function imagemLarga(filme, tamanho) {
+  return filme.backdrop_path ? urlImagem(filme.backdrop_path, tamanho) : IMAGEM_LARGA_GENERICA;
+}
+
+// Os primeiros `quantidade` filmes que têm imagem de fundo (para os cartões grandes).
+// A lista do TMDB já vem dos mais populares para os menos populares.
+export function escolherDestaques(filmes, quantidade) {
+  return (filmes ?? []).filter((f) => f.backdrop_path).slice(0, quantidade);
+}
