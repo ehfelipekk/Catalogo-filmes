@@ -2,7 +2,13 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buscarEmCartaz } from '../public/js/api.js';
+import {
+  buscarEmCartaz,
+  buscarPopulares,
+  buscarMaisAvaliados,
+  pesquisarFilmes,
+  descobrirFilmes,
+} from '../public/js/api.js';
 
 const fetchOriginal = globalThis.fetch;
 afterEach(() => {
@@ -29,4 +35,25 @@ test('sem internet, api.js lança uma mensagem amigável em português', async (
   await assert.rejects(buscarEmCartaz(1), {
     message: 'Sem conexão. Verifique sua internet e tente de novo.',
   });
+});
+
+test('api.js monta o pedido certo para cada rota nova', async () => {
+  const pedidos = [];
+  globalThis.fetch = async (url) => {
+    pedidos.push(url);
+    return new Response('{"page":1,"total_pages":1,"results":[]}');
+  };
+  await buscarPopulares(2);
+  await buscarMaisAvaliados(1);
+  await pesquisarFilmes('a&b', 1);
+  await descobrirFilmes({ genero: 27, nota: null }, 3);
+  await descobrirFilmes({ genero: null, nota: 7 }, 1);
+  const F = '/.netlify/functions/tmdb?';
+  assert.deepEqual(pedidos, [
+    `${F}rota=populares&page=2`,
+    `${F}rota=mais_avaliados&page=1`,
+    `${F}rota=pesquisa&q=a%26b&page=1`,
+    `${F}rota=descobrir&genero=27&page=3`,
+    `${F}rota=descobrir&nota=7&page=1`,
+  ]);
 });
