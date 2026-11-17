@@ -104,3 +104,56 @@ test('falha de rede dá 502', async () => {
   assert.equal(res.status, 502);
   assert.ok((await res.json()).erro);
 });
+
+// ---------- Rotas do catálogo geral (Só Filmes) ----------
+
+const C = 'language=pt-BR&region=BR&include_adult=false';
+const B = 'https://api.themoviedb.org/3';
+
+test('populares', async () => {
+  await pedir('rota=populares&page=3');
+  assert.equal(chamadas[0].url, `${B}/movie/popular?${C}&page=3`);
+});
+
+test('mais_avaliados exige 2000 votos e ordena pela nota', async () => {
+  await pedir('rota=mais_avaliados');
+  assert.equal(
+    chamadas[0].url,
+    `${B}/discover/movie?${C}&sort_by=vote_average.desc&vote_count.gte=2000&page=1`
+  );
+});
+
+test('pesquisa codifica símbolos e tira espaços das pontas', async () => {
+  await pedir(`rota=pesquisa&q=${encodeURIComponent('  a&b #1 100%  ')}&page=2`);
+  assert.equal(chamadas[0].url, `${B}/search/movie?${C}&query=a%26b%20%231%20100%25&page=2`);
+});
+
+test('pesquisa recusa texto vazio, só espaços ou com mais de 100 caracteres', async () => {
+  for (const q of ['', '%20%20', 'a'.repeat(101)]) {
+    assert.equal((await pedir(`rota=pesquisa&q=${q}`)).status, 400);
+  }
+  assert.equal((await pedir(`rota=pesquisa&q=${'a'.repeat(100)}`)).status, 200);
+  assert.equal(chamadas.length, 1);
+});
+
+test('descobrir sem filtros, só gênero, e gênero com nota', async () => {
+  await pedir('rota=descobrir');
+  await pedir('rota=descobrir&genero=27&page=2');
+  await pedir('rota=descobrir&genero=27&nota=7');
+  assert.equal(chamadas[0].url, `${B}/discover/movie?${C}&sort_by=popularity.desc&page=1`);
+  assert.equal(
+    chamadas[1].url,
+    `${B}/discover/movie?${C}&sort_by=popularity.desc&with_genres=27&page=2`
+  );
+  assert.equal(
+    chamadas[2].url,
+    `${B}/discover/movie?${C}&sort_by=popularity.desc&with_genres=27&vote_average.gte=7&vote_count.gte=100&page=1`
+  );
+});
+
+test('descobrir recusa gênero ou nota inválidos', async () => {
+  for (const q of ['genero=abc', 'genero=', 'genero=0', 'nota=4', 'nota=9', 'nota=7.5', 'page=501']) {
+    assert.equal((await pedir(`rota=descobrir&${q}`)).status, 400, q);
+  }
+  assert.equal(chamadas.length, 0);
+});
